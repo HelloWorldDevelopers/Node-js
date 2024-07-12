@@ -1,0 +1,109 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../DbConnect/database')
+
+const User = sequelize.define(
+    'User', // this is the model
+    // this code well genrate auto primary key and its name is {id} and it`s {auto increment}
+    /*
+        but you want to genrate you new coloum for primary key and it`s auto increment then use below 👇👇👇👇
+
+        user_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            autoIncrement: true, // No auto-increment
+        },
+         firstName: {
+          type: DataTypes.STRING,
+         }
+    */
+    {
+
+        firstName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "Rohit sharma",
+            comment: 'First name of the user', // set comment 
+            set(value) {
+                this.setDataValue('firstName', "Ajinkya".toLowerCase());
+            },
+
+        },
+    },
+    {
+        timestamps: true, // add audit column in table like:- created_date,created_by ........
+        createdAt: false,
+        updatedAt: 'updateTimestamp',
+        freezeTableName: true, // table name same as model
+        tableName: 'Employees', //add table name
+
+    },
+);
+
+module.exports = User;
+
+
+User.sync({ logging: console.log }) // this create tbale if does not exist
+User.sync({ force: true }) // delete previous table and create new
+User.sync({ alter: true }) // if there any change on column then use this
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* User methods */
+
+// save the user and {return saved user}
+const user1 = await User.create({
+    firstName: "Vishal",
+})
+
+// find all value {select * from user}
+const user2 = await User.findAll();
+
+
+// find spacific value {select fristname,lastname from user}
+const users3 = await User.findAll({
+    attributes: ['firstName', 'lastName'],
+});
+
+//change column names { firstname to First_name }
+const users4 = await User.findAll({
+    attributes: [['firstname', "First_Name"], 'lastName']
+})
+
+//  not get email column 
+const users = await User.findAll({
+    attributes: {
+        exclude: ['email']
+    }
+});
+
+// find by where
+const user = await User.findAll({
+    where: {
+        authorId: 2,
+    },
+});
+
+
+const users5 = await User.findAll({
+    where: {
+        user_id: 1
+    },
+    order: [
+        ['firstName', 'DESC']
+    ],
+    attributes: [
+        ['firstName', 'First_Name'], 'email', 'lastName'
+    ]
+});
